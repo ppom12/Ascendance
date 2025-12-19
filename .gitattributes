@@ -1,2 +1,0 @@
-C:/Users/antoi/Desktop/Ascendance/data/correspondance.json filter=lfs diff=lfs merge=lfs -text
-data/correspondance.json filter=lfs diff=lfs merge=lfs -text
