@@ -1,6 +1,14 @@
 // ======================
 // DOM
 // ======================
+const birthTable = document.getElementById('birthTable');
+const baptismTable = document.getElementById('baptismTable');
+const marriageTable = document.getElementById('marriageTable');
+const contractTable = document.getElementById('contractTable');
+const deathTable = document.getElementById('deathTable');
+const burialTable = document.getElementById('burialTable');
+const residenceTable = document.getElementById('residenceTable');
+
 const loadBtn = document.getElementById('loadGedcom');
 const fileInput = document.getElementById('gedcomInput');
 const fileStatus = document.getElementById('fileStatus');
