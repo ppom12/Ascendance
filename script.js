@@ -14,6 +14,7 @@ const tables = {
     BIRT: birthTable,
     CHR: baptismTable,
     MARR: marriageTable,
+    MARC: contractTable,
     DEAT: deathTable,
     BURI: burialTable,
     RESI: residenceTable
@@ -40,6 +41,7 @@ let activeMapEvents = {
     BIRT: true,
     CHR: true,
     MARR: true,
+    MARC: true,
     DEAT: true,
     BURI: true,
     RESI: true
@@ -111,7 +113,7 @@ fileInput.onchange = e => {
 function parseGedcom(text) {
     individuals = {};
     families = {};
-    events = { BIRT:{}, CHR:{}, MARR:{}, DEAT:{}, BURI:{}, RESI:{} };
+    events = { BIRT:{}, CHR:{}, MARR:{}, MARC:{}, DEAT:{}, BURI:{}, RESI:{} };
 
     let currentInd = null;
     let currentFam = null;
@@ -145,6 +147,9 @@ function parseGedcom(text) {
             return;
         }
 
+        /* =========================
+           INDIVIDU
+        ========================= */
         if (currentInd) {
             m = line.match(/^1 NAME (.+)/);
             if (m) {
@@ -212,6 +217,9 @@ function parseGedcom(text) {
             }
         }
 
+        /* =========================
+           FAMILLE (MARR + MARC)
+        ========================= */
         if (currentFam) {
             m = line.match(/^1 HUSB @(.+?)@/);
             if (m) { currentFam.husb = m[1]; return; }
@@ -220,9 +228,10 @@ function parseGedcom(text) {
             if (m) { currentFam.wife = m[1]; return; }
 
             if (line.match(/^1 MARR/)) { currentEvent = 'MARR'; return; }
+            if (line.match(/^1 MARC/)) { currentEvent = 'MARC'; return; }
 
             m = line.match(/^2 PLAC (.+)/);
-            if (m && currentEvent === 'MARR') {
+            if (m && (currentEvent === 'MARR' || currentEvent === 'MARC')) {
                 const parts = m[1].split(',').map(p => p.trim());
                 let cityRaw = null;
                 let postal = null;
@@ -249,8 +258,8 @@ function parseGedcom(text) {
 
                 [currentFam.husb, currentFam.wife].forEach(id => {
                     if (!id) return;
-                    if (!events.MARR[id]) events.MARR[id] = [];
-                    events.MARR[id].push({ cityRaw, postal, insee });
+                    if (!events[currentEvent][id]) events[currentEvent][id] = [];
+                    events[currentEvent][id].push({ cityRaw, postal, insee });
                 });
             }
         }
@@ -514,8 +523,8 @@ function renderTables() {
             });
         }
 
-        // Pour les mariages, on divise par 2 sauf pour la racine
-        if (key === 'MARR') {
+        // Pour les mariages ET contrats de mariage, on divise par 2
+        if (key === 'MARR' || key === 'MARC') {
             for (const label in c) {
                 c[label] = Math.round(c[label] / 2);
             }
